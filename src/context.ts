@@ -102,6 +102,7 @@ export default class Context {
   transformers: InstanceType<typeof Transformer>[]
 
   enableLog: boolean = true
+  logger: Console = console
 
   scopeManager: eslintScope.ScopeManager
   hash: number = 0
@@ -110,7 +111,8 @@ export default class Context {
     ast: Program,
     transformers: [string, Partial<TransformerOptions>][],
     isModule: boolean,
-    source?: string
+    source?: string,
+    logger?: Console
   ) {
     this.ast = ast
     this.transformers = this.buildTransformerList(transformers)
@@ -120,11 +122,15 @@ export default class Context {
     this.scopeManager = eslintScope.analyze(this.ast, {
       sourceType: isModule ? 'module' : 'script',
     })
+
+    if (logger !== undefined) {
+      this.logger = logger
+    }
   }
 
   public log(message?: any, ...optionalParams: any[]) {
     if (!this.enableLog) return
-    console.log(message, ...optionalParams)
+    this.logger.log(message, ...optionalParams)
   }
 
   private buildTransformerList(

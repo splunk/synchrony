@@ -5,6 +5,7 @@ import { Transformer, TransformerOptions } from './transformers/transformer'
 import { Node, Program, sp } from './util/types'
 import Context from './context'
 import { walk } from './util/walk'
+import { Console } from 'console'
 
 const FILE_REGEX = /(?<!\.d)\.[mc]?[jt]s$/i // cjs, mjs, js, ts, but no .d.ts
 
@@ -69,6 +70,11 @@ export interface DeobfuscateOptions {
    * Loose parsing (default = false)
    */
   loose: boolean
+
+  /**
+   * Console output
+   */
+  logger: Console
 }
 
 function sourceHash(str: string) {
@@ -90,6 +96,7 @@ export class Deobfuscator {
     rename: false,
     sourceType: 'both',
     loose: false,
+    logger: console,
   }
 
   private buildOptions(
@@ -160,11 +167,13 @@ export class Deobfuscator {
       options.customTransformers.length > 0
         ? options.customTransformers
         : defaultTransformers,
-      options.sourceType === 'module'
+      options.sourceType === 'module',
+      undefined,
+      options.logger
     )
 
     for (const t of context.transformers) {
-      console.log('Running', t.name, 'transformer')
+      options.logger.log('Running', t.name, 'transformer')
       await t.transform(context)
     }
 
@@ -184,7 +193,7 @@ export class Deobfuscator {
       )
       context.hash = sourceHash(source)
       for (const t of context.transformers) {
-        console.log('(rename) Running', t.name, 'transformer')
+        options.logger.log('(rename) Running', t.name, 'transformer')
         await t.transform(context)
       }
     }
@@ -206,7 +215,41 @@ export class Deobfuscator {
     source = escodegen.generate(ast, {
       sourceMapWithCode: true,
     }).code
+    try {
+      source = prettier.format(source, {
+        semi: false,
+        singleQuote: true,
 
+        // https://github.com/prettier/prettier/pull/12172
+        parser: (text, _opts) => {
+          let ast = this.parse(text, acornOptions, options)
+          if (options.transformChainExpressions) {
+            walk(ast as Node, {
+              ChainExpression(cx) {
+                if (cx.expression.type === 'CallExpression') {
+                  sp<any>(cx, {
+                    ...cx.expression,
+                    type: 'OptionalCallExpression',
+                    expression: undefined,
+                  })
+                } else if (cx.expression.type === 'MemberExpression') {
+                  sp<any>(cx, {
+                    ...cx.expression,
+                    type: 'OptionalMemberExpression',
+                    expression: undefined,
+                  })
+                }
+              },
+            })
+          }
+          return ast
+        },
+      })
+    } catch (err) {
+      // I don't think we should log here, but throwing the error is not very
+      // important since it is non fatal
+      options.logger.log(err)
+    }
     return source
   }
 }
