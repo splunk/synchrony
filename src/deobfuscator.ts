@@ -6,6 +6,7 @@ import { Node, Program, sp } from './util/types'
 import Context from './context'
 import prettier from 'prettier'
 import { walk } from './util/walk'
+import { Console } from 'console'
 
 const FILE_REGEX = /(?<!\.d)\.[mc]?[jt]s$/i // cjs, mjs, js, ts, but no .d.ts
 
@@ -66,6 +67,11 @@ export interface DeobfuscateOptions {
    * Loose parsing (default = false)
    */
   loose: boolean
+
+  /**
+   * Console output
+   */
+  logger: Console
 }
 
 function sourceHash(str: string) {
@@ -83,6 +89,7 @@ export class Deobfuscator {
     rename: false,
     sourceType: 'module',
     loose: false,
+    logger: console,
   }
 
   private buildOptions(
@@ -143,11 +150,13 @@ export class Deobfuscator {
       options.customTransformers.length > 0
         ? options.customTransformers
         : defaultTransformers,
-      options.sourceType === 'module'
+      options.sourceType === 'module',
+      undefined,
+      options.logger
     )
 
     for (const t of context.transformers) {
-      console.log('Running', t.name, 'transformer')
+      options.logger.log('Running', t.name, 'transformer')
       await t.transform(context)
     }
 
@@ -167,7 +176,7 @@ export class Deobfuscator {
       )
       context.hash = sourceHash(source)
       for (const t of context.transformers) {
-        console.log('(rename) Running', t.name, 'transformer')
+        options.logger.log('(rename) Running', t.name, 'transformer')
         await t.transform(context)
       }
     }
@@ -222,7 +231,7 @@ export class Deobfuscator {
     } catch (err) {
       // I don't think we should log here, but throwing the error is not very
       // important since it is non fatal
-      console.log(err)
+      options.logger.log(err)
     }
 
     return source
