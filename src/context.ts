@@ -109,6 +109,8 @@ export default class Context {
   scopeManager: eslintScope.ScopeManager
   hash: number = 0
 
+  obfuscations: Object[] = []
+
   constructor(
     ast: Program,
     transformers: [string, Partial<TransformerOptions>][],
@@ -135,9 +137,11 @@ export default class Context {
     this.logger.log(message, ...optionalParams)
   }
 
-  public logObfuscation(message?: any, ...optionalParams: any[]) {
-    if (!this.enableLog) return
-    this.logger.log(message, ...optionalParams)
+  public logObfuscation(message?: string, args?: Object) {
+    if (message !== undefined) {
+      this.obfuscations.push({ m: message, data: args })
+      this.log(message, args)
+    }
   }
 
   private buildTransformerList(

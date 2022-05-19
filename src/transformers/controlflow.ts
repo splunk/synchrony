@@ -193,14 +193,11 @@ export default class ControlFlow extends Transformer<ControlFlowOptions> {
                   }
                 }
               }
-              context.logObfuscation(
-                'Found control flow node id =',
-                decl.id.name,
-                '#fn =',
-                cfsn.functions.length,
-                '#lit =',
-                cfsn.literals.length
-              )
+              context.logObfuscation('Found control flow node id', {
+                id: decl.id.name,
+                numFunctions: cfsn.functions.length,
+                numLiterals: cfsn.literals.length,
+              })
               if (context.removeGarbage) {
                 rm.push(`${decl.start}!${decl.end}`)
               }
@@ -411,12 +408,10 @@ export default class ControlFlow extends Transformer<ControlFlowOptions> {
         )
         parent.body.splice(ourIdx, 1, ...nodes.flat())
 
-        context.logObfuscation(
-          'Found flattened control flow arr =',
-          shuffleArr,
-          'idx =',
-          startIdx
-        )
+        context.logObfuscation('Found flattened control flow arr', {
+          array: shuffleArr,
+          index: startIdx,
+        })
       },
     })
 

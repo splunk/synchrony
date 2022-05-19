@@ -150,7 +150,7 @@ export default class DeadCode extends Transformer<DeadCodeOptions> {
           p.declarations = p.declarations.filter(
             (decl) => decl.start !== node.start && decl.end !== node.end
           )
-          context.logObfuscation('Removed dead variable', v.name)
+          context.logObfuscation('Removed dead variable', { name: v.name })
         }
       }
     }

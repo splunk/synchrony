@@ -260,12 +260,10 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
               (e) => e.value
             ) as string[]
 
-            context.logObfuscation(
-              'Found string array at',
-              strArray.identifier,
-              '#',
-              strArray.strings.length
-            )
+            context.logObfuscation('Found string array', {
+              id: strArray.identifier,
+              length: strArray.strings.length,
+            })
             rm.push(`${vd.start}!${vd.end}`)
           }
 
@@ -320,12 +318,10 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
           ;(node as any).type = 'EmptyStatement'
         }
         context.stringArrays.push(strArrayObj)
-        context.logObfuscation(
-          'Found string array at',
-          strArrayObj.identifier,
-          '#',
-          strArrayObj.strings.length
-        )
+        context.logObfuscation('Found string array', {
+          id: strArrayObj.identifier,
+          length: strArrayObj.strings.length,
+        })
       },
     })
     return this
@@ -568,16 +564,12 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
         if (context.removeGarbage) {
           ;(node as any).type = 'EmptyStatement'
         }
-        context.logObfuscation(
-          'Found decoder function',
-          node.id?.name,
-          'arrayId =',
-          decFn.stringArrayIdentifier,
-          'offset =',
-          calcOffset,
-          'type =',
-          decFn.type
-        )
+        context.logObfuscation('Found decoder function', {
+          name: node.id?.name,
+          id: decFn.stringArrayIdentifier,
+          offset: calcOffset,
+          type: decFn.type,
+        })
       },
     })
     return this
@@ -749,7 +741,9 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
         )
 
       calcShift(context, breakCond as number, stringArray.identifier, pic)
-      context.logObfuscation('Found push/shift IIFE breakCond =', breakCond)
+      context.logObfuscation('Found push/shift IIFE breakCond', {
+        breakCond: breakCond,
+      })
       if (context.removeGarbage) {
         return true
       }
@@ -862,12 +856,10 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
       })
       if (!foundBinExp || !breakCond || !pic) return false
 
-      context.logObfuscation(
-        'Found push/shift (#2) IIFE stringArray =',
-        stringArrayFunc.identifier,
-        'breakCond =',
-        breakCond
-      )
+      context.logObfuscation('Found push/shift (#2) IIFE stringArray', {
+        id: stringArrayFunc.identifier,
+        breakCond: breakCond,
+      })
       calcShift(context, breakCond, stringArrayFunc.identifier, pic)
 
       return true
@@ -918,7 +910,10 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
             )
             if (!foundDecoder) continue
           }
-          context.logObfuscation('Found variable reference', refName, valName)
+          context.logObfuscation('Found variable reference', {
+            refName: refName,
+            valueName: valName,
+          })
           context.stringDecoderReferences.push({
             identifier: refName,
             realIdentifier: valName,
@@ -1039,18 +1034,13 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
         if (context.removeGarbage) {
           ;(node as any).type = 'EmptyStatement'
         }
-        context.logObfuscation(
-          'Found func ref id =',
-          fnId,
-          'offset =',
-          offset,
-          'index =',
-          indexArg,
-          'key =',
-          keyArg,
-          'parent =',
-          parent.identifier
-        )
+        context.logObfuscation('Found func ref id', {
+          id: fnId,
+          offset: offset,
+          index: indexArg,
+          key: keyArg,
+          parentId: parent.identifier,
+        })
       },
     })
     return newRefsFound
