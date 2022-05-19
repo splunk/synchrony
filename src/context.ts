@@ -135,6 +135,11 @@ export default class Context {
     this.logger.log(message, ...optionalParams)
   }
 
+  public logObfuscation(message?: any, ...optionalParams: any[]) {
+    if (!this.enableLog) return
+    this.logger.log(message, ...optionalParams)
+  }
+
   private buildTransformerList(
     list: [string, Partial<TransformerOptions>][]
   ): InstanceType<typeof Transformer>[] {

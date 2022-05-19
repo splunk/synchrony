@@ -260,7 +260,7 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
               (e) => e.value
             ) as string[]
 
-            context.log(
+            context.logObfuscation(
               'Found string array at',
               strArray.identifier,
               '#',
@@ -320,7 +320,7 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
           ;(node as any).type = 'EmptyStatement'
         }
         context.stringArrays.push(strArrayObj)
-        context.log(
+        context.logObfuscation(
           'Found string array at',
           strArrayObj.identifier,
           '#',
@@ -568,7 +568,7 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
         if (context.removeGarbage) {
           ;(node as any).type = 'EmptyStatement'
         }
-        context.log(
+        context.logObfuscation(
           'Found decoder function',
           node.id?.name,
           'arrayId =',
@@ -749,7 +749,7 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
         )
 
       calcShift(context, breakCond as number, stringArray.identifier, pic)
-      context.log('Found push/shift IIFE breakCond =', breakCond)
+      context.logObfuscation('Found push/shift IIFE breakCond =', breakCond)
       if (context.removeGarbage) {
         return true
       }
@@ -862,7 +862,7 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
       })
       if (!foundBinExp || !breakCond || !pic) return false
 
-      context.log(
+      context.logObfuscation(
         'Found push/shift (#2) IIFE stringArray =',
         stringArrayFunc.identifier,
         'breakCond =',
@@ -918,7 +918,7 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
             )
             if (!foundDecoder) continue
           }
-          context.log('Found variable reference', refName, valName)
+          context.logObfuscation('Found variable reference', refName, valName)
           context.stringDecoderReferences.push({
             identifier: refName,
             realIdentifier: valName,
@@ -1039,7 +1039,7 @@ export default class StringDecoder extends Transformer<StringDecoderOptions> {
         if (context.removeGarbage) {
           ;(node as any).type = 'EmptyStatement'
         }
-        context.log(
+        context.logObfuscation(
           'Found func ref id =',
           fnId,
           'offset =',

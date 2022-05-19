@@ -193,7 +193,7 @@ export default class ControlFlow extends Transformer<ControlFlowOptions> {
                   }
                 }
               }
-              context.log(
+              context.logObfuscation(
                 'Found control flow node id =',
                 decl.id.name,
                 '#fn =',
@@ -411,7 +411,7 @@ export default class ControlFlow extends Transformer<ControlFlowOptions> {
         )
         parent.body.splice(ourIdx, 1, ...nodes.flat())
 
-        context.log(
+        context.logObfuscation(
           'Found flattened control flow arr =',
           shuffleArr,
           'idx =',
