@@ -289,14 +289,10 @@ export default class JSCControlFlow extends Transformer<JSCControlFlowOptions> {
           context.log(`Iteration #${iter + 1}/${maxIters + 1}`)
           let wState = evaluateBinaryExpr(stack, whileStateExpr)
           if (wState === endState) {
-            context.logObfuscation(
-              'Switch calculation end',
-              wState,
-              '===',
-              endState,
-              'stack =',
-              stack
-            )
+            context.logObfuscation('Switch calculation end', {
+              state: `${wState} === ${endState}`,
+              stack: stack,
+            })
             break
           }
 
