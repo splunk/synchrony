@@ -74,6 +74,16 @@ export interface DeobfuscateOptions {
   logger: Console
 }
 
+export interface DeobfuscateNodeResult {
+  program: Program
+  obfuscations?: Object[]
+}
+
+export interface DeobfuscationResult {
+  source: string
+  obfuscations?: Object[]
+}
+
 function sourceHash(str: string) {
   let key = 0x94a3fa21
   let length = str.length
@@ -115,10 +125,10 @@ export class Deobfuscator {
     return (deobfOptions.loose ? acornLoose : acorn).parse(input, options)
   }
 
-  public async deobfuscateNode(
+  private async deobfuscateNodeInternal(
     node: Program,
     _options?: Partial<DeobfuscateOptions>
-  ): Promise<Program> {
+  ): Promise<DeobfuscateNodeResult> {
     const options = this.buildOptions(_options)
 
     const defaultTransformers: TransformerArray = [
@@ -181,19 +191,28 @@ export class Deobfuscator {
       }
     }
 
-    return context.ast
+    return { program: context.ast, obfuscations: context.obfuscations }
   }
 
-  public async deobfuscateSource(
+  public async deobfuscateNode(
+    node: Program,
+    _options?: Partial<DeobfuscateOptions>
+  ): Promise<Program> {
+    let result = await this.deobfuscateNodeInternal(node, _options)
+    return result.program
+  }
+
+  private async deobfuscateSourceInternal(
     source: string,
     _options?: Partial<DeobfuscateOptions>
-  ): Promise<string> {
+  ): Promise<DeobfuscationResult> {
     const options = this.buildOptions(_options)
     const acornOptions = this.buildAcornOptions(options)
     let ast = this.parse(source, acornOptions, options) as Program
 
     // perform transforms
-    ast = await this.deobfuscateNode(ast, options)
+    let nodeDeobfsResult = await this.deobfuscateNodeInternal(ast, options)
+    ast = nodeDeobfsResult.program
 
     source = escodegen.generate(ast, {
       sourceMapWithCode: true,
@@ -234,6 +253,21 @@ export class Deobfuscator {
       options.logger.log(err)
     }
 
-    return source
+    return { source: source, obfuscations: nodeDeobfsResult.obfuscations }
+  }
+
+  public async deobfuscateSource(
+    source: string,
+    _options?: Partial<DeobfuscateOptions>
+  ): Promise<string> {
+    let result = await this.deobfuscateSourceInternal(source, _options)
+    return result.source
+  }
+
+  public async deobfuscateSourceWithDetails(
+    source: string,
+    _options?: Partial<DeobfuscateOptions>
+  ): Promise<DeobfuscationResult> {
+    return this.deobfuscateSourceInternal(source, _options)
   }
 }
