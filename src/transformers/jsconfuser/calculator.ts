@@ -102,7 +102,7 @@ export default class JSCCalculator extends Transformer<JSCCalculatorOptions> {
         func.operators.push(oper)
       }
 
-      context.log(
+      context.logObfuscation(
         'Found calculator function id =',
         func.identifier,
         'oper =',

@@ -203,7 +203,7 @@ export default class JSCControlFlow extends Transformer<JSCControlFlowOptions> {
         (i) => i.type === 'WhileStatement'
       ) as WhileStatement[]
       for (const w of whiles) {
-        context.log('Found while statement')
+        context.logObfuscation('Found while statement')
         if (!Guard.isBinaryExpression(w.test)) continue
         if (
           !Guard.isLiteralNumeric(w.test.right) &&
@@ -289,7 +289,7 @@ export default class JSCControlFlow extends Transformer<JSCControlFlowOptions> {
           context.log(`Iteration #${iter + 1}/${maxIters + 1}`)
           let wState = evaluateBinaryExpr(stack, whileStateExpr)
           if (wState === endState) {
-            context.log(
+            context.logObfuscation(
               'Switch calculation end',
               wState,
               '===',
