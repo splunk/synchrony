@@ -116,7 +116,8 @@ export default class Context {
     transformers: [string, Partial<TransformerOptions>][],
     isModule: boolean,
     source?: string,
-    logger?: Console
+    logger?: Console,
+    quiet?: boolean
   ) {
     this.ast = ast
     this.transformers = this.buildTransformerList(transformers)
@@ -129,6 +130,9 @@ export default class Context {
 
     if (logger !== undefined) {
       this.logger = logger
+    }
+    if (quiet) {
+      this.enableLog = false
     }
   }
 
