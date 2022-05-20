@@ -75,6 +75,11 @@ export interface DeobfuscateOptions {
    * Console output
    */
   logger: Console
+
+  /**
+   * Disable logging
+   */
+  quiet: boolean
 }
 
 export interface DeobfuscateNodeResult {
@@ -107,6 +112,7 @@ export class Deobfuscator {
     sourceType: 'both',
     loose: false,
     logger: console,
+    quiet: false,
   }
 
   private buildOptions(
@@ -179,7 +185,8 @@ export class Deobfuscator {
         : defaultTransformers,
       options.sourceType === 'module',
       undefined,
-      options.logger
+      options.logger,
+      options.quiet
     )
 
     for (const t of context.transformers) {
@@ -199,7 +206,10 @@ export class Deobfuscator {
       context = new Context(
         parsed,
         [['Rename', {}]],
-        options.sourceType === 'module'
+        options.sourceType === 'module',
+        undefined,
+        options.logger,
+        options.quiet
       )
       context.hash = sourceHash(source)
       for (const t of context.transformers) {
