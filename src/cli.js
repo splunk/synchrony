@@ -48,6 +48,12 @@ yargs
           type: 'string',
           default: 'module',
           description: "Source type for file ('script' or 'module')",
+        })
+        .option('quiet', {
+          alias: 'q',
+          type: 'boolean',
+          default: false,
+          description: 'Use quiet mode output',
         }),
     (args) => {
       const abs = path.resolve(args.file)
@@ -62,6 +68,7 @@ yargs
             output: args.output,
             loose: args.loose,
             sourceType: args.sourceType,
+            quiet: args.quiet,
           }
 
           if (args.config) {
