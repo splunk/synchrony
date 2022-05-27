@@ -190,7 +190,9 @@ export class Deobfuscator {
     )
 
     for (const t of context.transformers) {
-      options.logger.log('Running', t.name, 'transformer')
+      if (!options.quiet) {
+        options.logger.log('Running', t.name, 'transformer')
+      }
       await t.transform(context)
     }
 
