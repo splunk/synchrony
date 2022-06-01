@@ -35,7 +35,8 @@ yargs
         .option('output', {
           alias: 'o',
           type: 'string',
-          description: 'Where to output deobfuscated file',
+          description:
+            'Where to output deobfuscated file. Use "-" for stdout.  Default: "$input.cleaned.$inputExt"',
         })
         .option('loose', {
           alias: 'l',
@@ -91,9 +92,13 @@ yargs
             let newFilename = opts.output
               ? opts.output
               : abs.substring(0, abs.length - ext.length) + '.cleaned' + ext
-            fs.writeFile(newFilename, source, 'utf8', (err) => {
-              if (err) return console.error('Failed to write file', err.code)
-            })
+            if (opts.output === '-') {
+              console.log(source)
+            } else {
+              fs.writeFile(newFilename, source, 'utf8', (err) => {
+                if (err) return console.error('Failed to write file', err.code)
+              })
+            }
           })
         })
       })
