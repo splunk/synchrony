@@ -246,41 +246,6 @@ export class Deobfuscator {
     source = escodegen.generate(ast, {
       sourceMapWithCode: true,
     }).code
-    try {
-      source = prettier.format(source, {
-        semi: false,
-        singleQuote: true,
-
-        // https://github.com/prettier/prettier/pull/12172
-        parser: (text, _opts) => {
-          let ast = this.parse(text, acornOptions, options)
-          if (options.transformChainExpressions) {
-            walk(ast as Node, {
-              ChainExpression(cx) {
-                if (cx.expression.type === 'CallExpression') {
-                  sp<any>(cx, {
-                    ...cx.expression,
-                    type: 'OptionalCallExpression',
-                    expression: undefined,
-                  })
-                } else if (cx.expression.type === 'MemberExpression') {
-                  sp<any>(cx, {
-                    ...cx.expression,
-                    type: 'OptionalMemberExpression',
-                    expression: undefined,
-                  })
-                }
-              },
-            })
-          }
-          return ast
-        },
-      })
-    } catch (err) {
-      // I don't think we should log here, but throwing the error is not very
-      // important since it is non fatal
-      options.logger.log(err)
-    }
 
     return { source: source, obfuscations: nodeDeobfsResult.obfuscations }
   }
